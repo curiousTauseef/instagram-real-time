@@ -41,17 +41,9 @@
          */
         getData: function() {
             var self = this;
-            socket.on('show', function(data) {
-                var url = data.show;
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    crossDomain: true,
-                    dataType: 'jsonp'
-                }).done(function (data) {
-                    self.renderTemplate(data);
-                }); 
-            });
+            socket.on("image", function(image){
+                self.renderTemplate(image);
+            })
         },
 
         /**
@@ -59,7 +51,6 @@
          */
         renderTemplate: function(data) {
             var lastAnimate, lastSrc, nextSrc, last,
-                current = data.data[0].images.standard_resolution.url,
                 w = $(document).width();
 
                 var
@@ -70,14 +61,6 @@
                     imgWrap = $('#imgContent');
 
                 imgWrap.prepend(result);
-
-                last = $('#imgContent a:first-child');
-                lastSrc = $('#imgContent a:first-child').find('img').attr('src');
-                nextSrc = $('#imgContent a:nth-child(2)').find('img').attr('src');
-
-                if( lastSrc === nextSrc ) {
-                    last.remove();
-                }
 
                 last = $('#imgContent').find(':first-child').removeClass('Hvh');
 
@@ -105,16 +88,12 @@
          * [ render most recent pics defined by subscribed hashtag ]
          */
         mostRecent: function() {
+            var self = this;
             socket.on('firstShow', function (data) {
-                var clean = $('imgContent').find('a').remove();
-                var
-                    query = data,
-                    source = $('#firstShow-tpl').html(),
-                    compiledTemplate = Handlebars.compile(source),
-                    result = compiledTemplate(query),
-                    imgWrap = $('#imgContent');
-
-                imgWrap.html(result);
+                var clean = $('#imgContent').find('.image').remove();
+                data.forEach(function(image){
+                    self.renderTemplate(image);
+                });
             });
         },
 

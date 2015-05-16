@@ -8,7 +8,9 @@ var io = require('socket.io').listen(app.listen(port));
 var Instagram = require('instagram-node-lib');
 var http = require('http');
 var url = require('url');
-var request = ('request');
+var Promise = require("bluebird");
+var bhttp = require("bhttp");
+var FifoQueue = require("./lib/fifo-queue");
 var intervalID;
 
 /**
@@ -24,7 +26,30 @@ var pub = __dirname + '/public',
  */
 var clientID = process.env.INSTAGRAM_CLIENT_ID,
     clientSecret = process.env.INSTAGRAM_CLIENT_SECRET,
-    callbackUrl = url.resolve(process.env.BASE_URL, "callback");
+    callbackUrl = url.resolve(process.env.BASE_URL, "callback"),
+    subscribeTags = process.env.SUBSCRIBE_TAGS.split(",");
+
+/**
+ * Bookkeeping for images that were already seen - this is because the Instagram API gives us tag rather than image notifications.
+ */
+var knownThreshold = 200;
+var knownQueues = {};
+var responseThreshold = 3;
+var lastResponses = {};
+
+subscribeTags.forEach(function(tag){
+  knownQueues[tag] = FifoQueue(knownThreshold, {simpleValues: true});
+  lastResponses[tag] = FifoQueue(responseThreshold);
+});
+
+function isKnown(tag, id) {
+  return knownQueues[tag].has(id);
+}
+
+function setKnown(tag, id) {
+  /* Returns whether the image in question is a new one. */
+  return knownQueues[tag].pushIfNew(id);
+}
 
 /**
  * Set the configuration
@@ -35,7 +60,7 @@ Instagram.set('callback_url', callbackUrl);
 Instagram.set('redirect_uri', process.env.BASE_URL);
 Instagram.set('maxSockets', 10);
 
-process.env.SUBSCRIBE_TAGS.split(",").forEach(function(tag){
+subscribeTags.forEach(function(tag){
   Instagram.subscriptions.subscribe({
     object: 'tag',
     object_id: tag,
@@ -85,12 +110,13 @@ app.get("/views", function(req, res){
  * and send to the client side via socket.emit
  */
 io.sockets.on('connection', function (socket) {
-  Instagram.tags.recent({
-      name: process.env.SUBSCRIBE_TAGS[0],
-      complete: function(data) {
-        socket.emit('firstShow', { firstShow: data });
-      }
-  });
+  var data = subscribeTags.map(function(tag){
+    return lastResponses[tag].get(0);
+  }).reduce(function(newList, response){
+    return newList.concat(response);
+  }, [])
+  
+  socket.emit('firstShow', data);
 });
 
 /**
@@ -104,24 +130,31 @@ app.get('/callback', function(req, res){
  * for each new post Instagram send us the data
  */
 app.post('/callback', function(req, res) {
-    var data = req.body;
-
-    // Grab the hashtag "tag.object_id"
-    // concatenate to the url and send as a argument to the client side
-    data.forEach(function(tag) {
-      var url = 'https://api.instagram.com/v1/tags/' + tag.object_id + '/media/recent?client_id='+clientID;
-      sendMessage(url);
+  var data = req.body;
+  
+  Promise.map(data, function(tag){
+    var tagName = tag.object_id;
+    
+    return Promise.try(function(){
+      return 'https://api.instagram.com/v1/tags/' + tagName + '/media/recent?client_id=' + clientID;
+    }).then(function(tagUrl){
+      return bhttp.get(tagUrl, {decodeJSON: true});
+    }).then(function(response){
+      return response.body.data;
+    }).map(function(item){
+      return {id: item.id, url: item.images.standard_resolution.url, caption: (item.caption && item.caption.text), tag: tagName};
+    }).tap(function(response) {
+      lastResponses[tagName].push(response);
     });
-    res.end();
-});
+  }).reduce(function(itemList, items){
+    return itemList.concat(items);
+  }, []).filter(function(item){
+    return setKnown(item.tag, item.id);
+  }).each(function(item){
+    io.sockets.emit("image", item);
+  });
 
-/**
- * Send the url with the hashtag to the client side
- * to do the ajax call based on the url
- * @param  {[string]} url [the url as string with the hashtag]
- */
-function sendMessage(url) {
-  io.sockets.emit('show', { show: url });
-}
+  res.end();
+});
 
 console.log("Listening on port " + port);

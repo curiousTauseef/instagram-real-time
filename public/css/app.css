@@ -215,9 +215,9 @@ a:hover {
 	position: relative;
 	z-index: 10;
 }
-#imgContent a, 
+#imgContent .image, 
 #imgContent img { display: block; }
-#imgContent a {
+#imgContent .image {
 	float: left;
 	width: 16.640625%;
 }
@@ -339,7 +339,7 @@ a:hover {
 /* last breakpoint starts here */
 @media all and (max-width: 612px) {
   /* content */
-  #imgContent a {
+  #imgContent .image {
     display: block;
     float: none;
     width: 100%;

@@ -4,6 +4,8 @@
   "description": "Real time instagram",
   "author": "Michael Lancaster",
   "dependencies": {
+    "bhttp": "^1.2.1",
+    "bluebird": "^2.9.25",
     "dotenv-node": "0.0.2",
     "express": "3.5.1",
     "instagram-node-lib": "~0.1.1",

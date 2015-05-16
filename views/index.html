@@ -61,18 +61,11 @@ Designed with love and for fun by: Daniel Branca (twitter: @designerdanb)
 	<!--********************************
 	TEMPLATES
 	*********************************-->
-	<script id="firstShow-tpl" type="text/x-handlebars-template">
-	{{#each firstShow}}
-		<a href="{{link}}" title="{{caption.text}}" target="_blank">
-			<img src="{{images.standard_resolution.url}}" alt="{{caption.text}}" />
-		</a>
-	{{/each}}
-	</script>
 
 	<script id="mostRecent-tpl" type="text/x-handlebars-template">
-		<a href="{{data.0.link}}" title="{{data.0.caption.text}}" target="_blank" class="Hvh">
-			<img src="{{data.0.images.standard_resolution.url}}" alt="{{data.0.caption.text}}" />
-		</a>
+		<div class="image Hvh">
+			<img src="{{url}}" alt="{{caption}}" />
+		</div>
 	</script>
 
 	<!-- CALL MAIN APP SCRIPT -->
