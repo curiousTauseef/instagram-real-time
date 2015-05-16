@@ -1,5 +1,4 @@
-var dotEnv = require("dotenv-node");
-new dotEnv();
+require('dotenv').load();
 
 var express = require("express");
 var app = express();
