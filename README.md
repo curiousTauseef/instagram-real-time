@@ -1,4 +1,4 @@
-Lollagram - Instagram Real Time App
+Instagram Real Time App
 =============
 
 ## Intro
