@@ -14,8 +14,20 @@
         init: function() {
             this.mostRecent();
             this.getData();
-            this.aboutInfo();
             this.mobileNav();
+            
+            $(window).resize(function() {
+                var w = $(document).width();
+                if( w >= 900 ) {
+                    lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInLeft');
+                }
+
+                if( w <= 900 ) {
+                    lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInDown');
+                }
+                
+                this.pruneOverflow();
+            });
         },
 
         /**
@@ -45,6 +57,18 @@
                 self.renderTemplate(image);
             })
         },
+        
+        pruneOverflow: function() {
+            var viewportHeight = $(window).height();
+            
+            $("#imgContent .image")
+                .filter(function(){
+                    console.log($(this).offset(), viewportHeight);
+                    return $(this).offset().top > viewportHeight;
+                })
+                .slice(10)
+                .remove();
+        },
 
         /**
          * [Render the images on the page and check for layout resize]
@@ -71,17 +95,8 @@
                 if( w <= 900 ) {
                     lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInDown');
                 }
-
-                $(window).resize(function() {
-                    var w = $(document).width();
-                    if( w >= 900 ) {
-                        lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInLeft');
-                    }
-
-                    if( w <= 900 ) {
-                        lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInDown');
-                    }
-                });
+            
+                this.pruneOverflow();
         },
 
         /**
@@ -95,37 +110,6 @@
                     self.renderTemplate(image);
                 });
             });
-        },
-
-        /**
-         * [about view interaction show/hide]
-         */
-        aboutInfo: function() {
-            var about = $('.aboutWrap'),
-                btClose = $('#js-closeAbout').find('a'),
-                bt = $('#js-btAbout'),
-                user = localStorage.getItem('user');
-
-            if( user ) {
-                about.removeClass('active');
-            } else {
-                localStorage.setItem('user', 'visited');
-            }
-
-            btClose.on('click', function(e) {
-                e.preventDefault();
-                about.removeClass('active');
-            });
-
-            bt.on('click', function(e) {
-                e.preventDefault();
-                if( !about.hasClass('active') ) {
-                    about.addClass('active');
-                } else {
-                    about.removeClass('active');
-                }
-            });
-
         }
 
     };
