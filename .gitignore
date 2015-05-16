@@ -65,3 +65,4 @@ Planning/
 ###########
 *.sublime-project
 *.sublime-workspace
+/.env

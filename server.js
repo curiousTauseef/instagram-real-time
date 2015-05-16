@@ -1,9 +1,13 @@
+var dotEnv = require("dotenv-node");
+new dotEnv();
+
 var express = require("express");
 var app = express();
 var port = process.env.PORT || 3700;
 var io = require('socket.io').listen(app.listen(port));
 var Instagram = require('instagram-node-lib');
 var http = require('http');
+var url = require('url');
 var request = ('request');
 var intervalID;
 
@@ -18,63 +22,29 @@ var pub = __dirname + '/public',
  * Set the 'client ID' and the 'client secret' to use on Instagram
  * @type {String}
  */
-var clientID = 'YOUR_CLIENT_ID',
-    clientSecret = 'YOUR_CLIENT_SECRET';
+var clientID = process.env.INSTAGRAM_CLIENT_ID,
+    clientSecret = process.env.INSTAGRAM_CLIENT_SECRET,
+    callbackUrl = url.resolve(process.env.BASE_URL, "callback");
 
 /**
  * Set the configuration
  */
 Instagram.set('client_id', clientID);
 Instagram.set('client_secret', clientSecret);
-Instagram.set('callback_url', 'http://YOUR_URL.com/callback');
-Instagram.set('redirect_uri', 'http://YOUR_URL.com');
+Instagram.set('callback_url', callbackUrl);
+Instagram.set('redirect_uri', process.env.BASE_URL);
 Instagram.set('maxSockets', 10);
 
-/**
- * Uses the library "instagram-node-lib" to Subscribe to the Instagram API Real Time
- * with the tag "hashtag" lollapalooza
- * @type {String}
- */
-Instagram.subscriptions.subscribe({
-  object: 'tag',
-  object_id: 'lollapalooza',
-  aspect: 'media',
-  callback_url: 'http://YOUR_URL.com/callback',
-  type: 'subscription',
-  id: '#'
+process.env.SUBSCRIBE_TAGS.split(",").forEach(function(tag){
+  Instagram.subscriptions.subscribe({
+    object: 'tag',
+    object_id: tag,
+    aspect: 'media',
+    callback_url: callbackUrl,
+    type: 'subscription',
+    id: '#'
+  });
 });
-
-/**
- * Uses the library "instagram-node-lib" to Subscribe to the Instagram API Real Time
- * with the tag "hashtag" lollapalooza2013
- * @type {String}
- */
-Instagram.subscriptions.subscribe({
-  object: 'tag',
-  object_id: 'lollapalooza2013',
-  aspect: 'media',
-  callback_url: 'http://YOUR_URL.com/callback',
-  type: 'subscription',
-  id: '#'
-});
-
-/**
- * Uses the library "instagram-node-lib" to Subscribe to the Instagram API Real Time
- * with the tag "hashtag" lolla2013
- * @type {String}
- */
-Instagram.subscriptions.subscribe({
-  object: 'tag',
-  object_id: 'lolla2013',
-  aspect: 'media',
-  callback_url: 'http://YOUR_URL.com/callback',
-  type: 'subscription',
-  id: '#'
-});
-
-// if you want to unsubscribe to any hashtag you subscribe
-// just need to pass the ID Instagram send as response to you
-Instagram.subscriptions.unsubscribe({ id: '3668016' });
 
 // https://devcenter.heroku.com/articles/using-socket-io-with-node-js-on-heroku
 io.configure(function () {
@@ -116,7 +86,7 @@ app.get("/views", function(req, res){
  */
 io.sockets.on('connection', function (socket) {
   Instagram.tags.recent({
-      name: 'lollapalooza',
+      name: process.env.SUBSCRIBE_TAGS[0],
       complete: function(data) {
         socket.emit('firstShow', { firstShow: data });
       }
@@ -141,7 +111,6 @@ app.post('/callback', function(req, res) {
     data.forEach(function(tag) {
       var url = 'https://api.instagram.com/v1/tags/' + tag.object_id + '/media/recent?client_id='+clientID;
       sendMessage(url);
-
     });
     res.end();
 });

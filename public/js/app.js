@@ -1,5 +1,5 @@
 (function() {
-    var socket = io.connect('http://lollagram.herokuapp.com');
+    var socket = io.connect(SOCKET_ENDPOINT);
 
     /**
      * [Namespacing]
@@ -82,7 +82,7 @@
                 last = $('#imgContent').find(':first-child').removeClass('Hvh');
 
                 if( w >= 900 ) {
-                    lastAnimate = $('#imgContent').find(':nth-child(2)').addClass('animated fadeInLeft');
+                    lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInLeft');
                 }
 
                 if( w <= 900 ) {
@@ -92,7 +92,7 @@
                 $(window).resize(function() {
                     var w = $(document).width();
                     if( w >= 900 ) {
-                        lastAnimate = $('#imgContent').find(':nth-child(2)').addClass('animated fadeInLeft');
+                        lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInLeft');
                     }
 
                     if( w <= 900 ) {
