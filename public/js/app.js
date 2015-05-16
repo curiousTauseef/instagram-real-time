@@ -17,29 +17,45 @@
             this.getData();
             this.mobileNav();
             
-            $(window).resize(function() {
-                var w = $(document).width();
-                if( w >= 900 ) {
-                    lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInLeft');
-                }
-
-                if( w <= 900 ) {
-                    lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInDown');
-                }
-                
-                this.pruneOverflow();
-            });
+            var self = this;
             
-            if(isAdmin) {
-                overflowThreshold = 100;
+            $(function(){
+                $(window).resize(function() {
+                    var w = $(document).width();
+                    if( w >= 900 ) {
+                        lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInLeft');
+                    }
+
+                    if( w <= 900 ) {
+                        lastAnimate = $('#imgContent').find(':nth-child(1)').addClass('animated fadeInDown');
+                    }
+
+                    self.pruneOverflow();
+                });
                 
-                $(function(){
+                $(".fullscreenButton").on("click", function(event){
+                    self.launchFullscreen(document.getElementById("imgContent"));
+                });
+
+                $(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', function(event){
+                    if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+                        // Fullscreen enabled
+                        $(".fullscreenButton").hide();
+                    } else {
+                        // Fullscreen disabled
+                        $(".fullscreenButton").show();
+                    }
+                });
+
+                if(isAdmin) {
+                    overflowThreshold = 100;
+
                     $("body").css({
                         overflow: "auto",
                         overflowX: "hidden"
                     });
-                })
-            }
+                }
+            });
         },
 
         /**
@@ -72,6 +88,16 @@
             socket.on("remove", function(id){
                 $("#imgContent .image[data-id='" + id + "']").remove();
             });
+        },
+        
+        launchFullscreen: function(element) {
+            if (element.requestFullScreen) {
+                element.requestFullScreen();
+            } else if (element.mozRequestFullScreen) {
+                element.mozRequestFullScreen();
+            } else if (element.webkitRequestFullScreen) {
+                element.webkitRequestFullScreen();
+            }
         },
         
         pruneOverflow: function() {

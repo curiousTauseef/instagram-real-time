@@ -24,7 +24,8 @@ html {
 /* font-family: 'Open Sans', sans-serif; */
 
 body {
-	background: url(../images/bg.jpg) repeat 0 0;
+	/* background: url(../images/bg.jpg) repeat 0 0; */
+	background-color: black;
   font-size: 62.5%;
   font-family: 'Open Sans', sans-serif;
   overflow: hidden;
@@ -70,6 +71,18 @@ a:hover {
 /* ==========================================================================
    Layout styles: Layout Oriented
    ========================================================================== */
+
+.fullscreenButton {
+	position: fixed;
+	top: 16px;
+	right: 16px;
+	background-color: black;
+	color: white;
+	z-index: 999;
+	font-size: 14px;
+	border: 0px;
+	padding: 6px 10px;
+}
 
 /***********
 * @top fill
@@ -209,6 +222,7 @@ a:hover {
 * @Image wrapper
 ************/
 #imgContent {
+	background-color: black;
 	width: 100%;
 }
 #imgContent .animated {
