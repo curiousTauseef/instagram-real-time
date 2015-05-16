@@ -55,7 +55,7 @@ All configuration happens through either environment variables or the [`.env fil
 
 ## Author
 
-Original by Michael Lancaster, some modifications by Sven Slootweg.
+Original by Michael Lancaster, some modifications by Sven Slootweg and some by Tejas Manohar.
 
 ## License
 
