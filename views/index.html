@@ -30,7 +30,17 @@ Designed with love and for fun by: Daniel Branca (twitter: @designerdanb)
 
 	<!-- configuration -->
 	<script>
-		var SOCKET_ENDPOINT = window.location.href;
+		var match = window.location.href.match(/^(.+)\/admin\/[^\/]+/)
+		
+		if (match) {
+			/* No, this isn't the actual authentication. It's just to not have to add a template renderer on the server-side. You can't do anything without the correct authentication key. Don't bother. */
+			console.log(match);
+			var SOCKET_ENDPOINT = match[1];
+			var isAdmin = true;
+		} else {
+			var SOCKET_ENDPOINT = window.location.href;
+			var isAdmin = false;
+		}
 	</script>
 
 	<!-- script -->
@@ -63,7 +73,7 @@ Designed with love and for fun by: Daniel Branca (twitter: @designerdanb)
 	*********************************-->
 
 	<script id="mostRecent-tpl" type="text/x-handlebars-template">
-		<div class="image Hvh">
+		<div class="image Hvh" data-id="{{id}}">
 			<img src="{{url}}" alt="{{caption}}" />
 		</div>
 	</script>

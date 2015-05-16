@@ -1,5 +1,6 @@
 (function() {
     var socket = io.connect(SOCKET_ENDPOINT);
+    var overflowThreshold = 10;
 
     /**
      * [Namespacing]
@@ -28,6 +29,17 @@
                 
                 this.pruneOverflow();
             });
+            
+            if(isAdmin) {
+                overflowThreshold = 100;
+                
+                $(function(){
+                    $("body").css({
+                        overflow: "auto",
+                        overflowX: "hidden"
+                    });
+                })
+            }
         },
 
         /**
@@ -55,7 +67,11 @@
             var self = this;
             socket.on("image", function(image){
                 self.renderTemplate(image);
-            })
+            });
+            
+            socket.on("remove", function(id){
+                $("#imgContent .image[data-id='" + id + "']").remove();
+            });
         },
         
         pruneOverflow: function() {
@@ -63,10 +79,9 @@
             
             $("#imgContent .image")
                 .filter(function(){
-                    console.log($(this).offset(), viewportHeight);
                     return $(this).offset().top > viewportHeight;
                 })
-                .slice(10)
+                .slice(overflowThreshold)
                 .remove();
         },
 
@@ -82,9 +97,18 @@
                     source = $('#mostRecent-tpl').html(),
                     compiledTemplate = Handlebars.compile(source),
                     result = compiledTemplate(query),
-                    imgWrap = $('#imgContent');
+                    imgWrap = $('#imgContent'),
+                    element = $(result.trim());
+            
+                if (isAdmin) {
+                    element.on("click", function(){
+                        // Lazy...
+                        $.post(window.location.href + "/remove", {id: $(this).data("id")})
+                        element.remove();
+                    });
+                }
 
-                imgWrap.prepend(result);
+                imgWrap.prepend(element);
 
                 last = $('#imgContent').find(':first-child').removeClass('Hvh');
 

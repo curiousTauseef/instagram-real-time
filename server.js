@@ -36,6 +36,7 @@ var knownThreshold = 200;
 var knownQueues = {};
 var responseThreshold = 3;
 var lastResponses = {};
+var removedImages = {};
 
 subscribeTags.forEach(function(tag){
   knownQueues[tag] = FifoQueue(knownThreshold, {simpleValues: true});
@@ -83,69 +84,25 @@ io.configure(function () {
   io.set("polling duration", 10);
 });
 
-/**
- * Set your app main configuration
- */
-app.configure(function(){
-    app.use(express.bodyParser());
-    app.use(express.methodOverride());
-    app.use(app.router);
-    app.use(express.static(pub));
-    app.use(express.static(view));
-    app.use(express.errorHandler());
-});
+function getLatestForTag(tagName) {
+  return Promise.try(function(){
+    return 'https://api.instagram.com/v1/tags/' + tagName + '/media/recent?client_id=' + clientID;
+  }).then(function(tagUrl){
+    return bhttp.get(tagUrl, {decodeJSON: true});
+  }).then(function(response){
+    return response.body.data;
+  }).map(function(item){
+    return {id: item.id, url: item.images.standard_resolution.url, caption: (item.caption && item.caption.text), tag: tagName};
+  })
+  .filter(filterDeleted)
+  .tap(function(response) {
+    lastResponses[tagName].push(response);
+  });
+}
 
-/**
- * Render your index/view "my choice was not use jade"
- */
-app.get("/views", function(req, res){
-    res.render("index");
-});
-
-// check subscriptions
-// https://api.instagram.com/v1/subscriptions?client_secret=YOUR_CLIENT_ID&client_id=YOUR_CLIENT_SECRET
-
-/**
- * On socket.io connection we get the most recent posts
- * and send to the client side via socket.emit
- */
-io.sockets.on('connection', function (socket) {
-  var data = subscribeTags.map(function(tag){
-    return lastResponses[tag].get(0);
-  }).reduce(function(newList, response){
-    return newList.concat(response);
-  }, [])
-  
-  socket.emit('firstShow', data);
-});
-
-/**
- * Needed to receive the handshake
- */
-app.get('/callback', function(req, res){
-    var handshake =  Instagram.subscriptions.handshake(req, res);
-});
-
-/**
- * for each new post Instagram send us the data
- */
-app.post('/callback', function(req, res) {
-  var data = req.body;
-  
-  Promise.map(data, function(tag){
-    var tagName = tag.object_id;
-    
-    return Promise.try(function(){
-      return 'https://api.instagram.com/v1/tags/' + tagName + '/media/recent?client_id=' + clientID;
-    }).then(function(tagUrl){
-      return bhttp.get(tagUrl, {decodeJSON: true});
-    }).then(function(response){
-      return response.body.data;
-    }).map(function(item){
-      return {id: item.id, url: item.images.standard_resolution.url, caption: (item.caption && item.caption.text), tag: tagName};
-    }).tap(function(response) {
-      lastResponses[tagName].push(response);
-    });
+function sendLatestForTags(tagNames) {
+  return Promise.map(tagNames, function(tagName){
+    return getLatestForTag(tagName);
   }).reduce(function(itemList, items){
     return itemList.concat(items);
   }, []).filter(function(item){
@@ -153,8 +110,97 @@ app.post('/callback', function(req, res) {
   }).each(function(item){
     io.sockets.emit("image", item);
   });
+}
+
+function filterDeleted(item) {
+  return (removedImages[item.id] == null);
+}
+
+/**
+ * Set your app main configuration
+ */
+
+app.use(require("body-parser").urlencoded({
+  extended: true
+}));
+
+app.use(require("body-parser").json());
+
+//app.use(express.methodOverride());
+//app.use(app.router);
+app.use(express.static(pub));
+app.use(express.static(view));
+//app.use(express.errorHandler());
+
+/**
+ * Render your index/view "my choice was not use jade"
+ */
+app.get("/views", function(req, res){
+  res.render("index");
+});
+
+// check subscriptions
+// https://api.instagram.com/v1/subscriptions?client_secret=YOUR_CLIENT_ID&client_id=YOUR_CLIENT_SECRET
+
+sendLatestForTags(subscribeTags);
+
+/**
+ * On socket.io connection we get the most recent posts
+ * and send to the client side via socket.emit
+ */
+io.sockets.on('connection', function (socket) {
+  var data = subscribeTags.map(function(tag){
+    return lastResponses[tag].get(0).filter(filterDeleted);
+  }).reduce(function(newList, response){
+    return newList.concat(response);
+  }, [])
+  
+  socket.emit('firstShow', data);
+});
+
+router = express.Router();
+
+/**
+ * Needed to receive the handshake
+ */
+router.get('/callback', function(req, res){
+  var handshake =  Instagram.subscriptions.handshake(req, res);
+});
+
+router.param("authKey", function(req, res, next) {
+  if(req.params.authKey !== process.env.AUTH_KEY) {
+    return res.redirect("/");
+  } else {
+    next();
+  }
+})
+
+router.get("/admin/:authKey", function(req, res){
+  res.sendfile("views/index.html");
+});
+
+router.post("/admin/:authKey/remove", function(req, res){
+  io.sockets.emit("remove", req.body.id);
+  removedImages[req.body.id] = true;
+  console.log("---------- REMOVED", removedImages);
+  res.end();
+});
+
+/**
+ * for each new post Instagram send us the data
+ */
+router.post('/callback', function(req, res) {
+  var data = req.body;
+  
+  Promise.map(data, function(tag){
+    return tag.object_id;
+  }).then(function(tagNames){
+    sendLatestForTags(tagNames);
+  });
 
   res.end();
 });
+
+app.use(router);
 
 console.log("Listening on port " + port);
