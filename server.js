@@ -95,9 +95,11 @@ function getLatestForTag(tagName) {
   })
   .filter(filterDeleted)
   .tap(function(response) {
-    console.log('typeof '+typeof response)
-    console.log(response[0])
-    lastResponses[tagName].push(response);
+    if(typeof lastResponses[tagName] == 'undefined') {
+      lastResponses[tagName].push(response);
+    } else {
+      return;
+    }
   });
 }
 
