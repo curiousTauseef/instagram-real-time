@@ -95,7 +95,7 @@ function getLatestForTag(tagName) {
   })
   .filter(filterDeleted)
   .tap(function(response) {
-    if(typeof lastResponses[tagName] == 'undefined') {
+    if(typeof lastResponses[tagName] != 'undefined') {
       lastResponses[tagName].push(response);
     } else {
       return;
@@ -153,7 +153,11 @@ sendLatestForTags(subscribeTags);
  */
 io.sockets.on('connection', function (socket) {
   var data = subscribeTags.map(function(tag){
-    return lastResponses[tag].get(0).filter(filterDeleted);
+    if(typeof lastResponses[tag] != 'undefined') {
+      return lastResponses[tag].get(0).filter(filterDeleted);
+    } else {
+      return;
+    }
   }).reduce(function(newList, response){
     return newList.concat(response);
   }, [])
