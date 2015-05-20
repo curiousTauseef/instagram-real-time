@@ -96,7 +96,7 @@ function getLatestForTag(tagName) {
   .filter(filterDeleted)
   .then(function(list) {
     return list.concat([]).reverse();
-  }
+  })
   .tap(function(response) {
     lastResponses[tagName].push(response);
   });
