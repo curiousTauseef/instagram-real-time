@@ -94,6 +94,9 @@ function getLatestForTag(tagName) {
     return {id: item.id, url: item.images.standard_resolution.url, caption: (item.caption && item.caption.text), tag: tagName};
   })
   .filter(filterDeleted)
+  .then(function() {
+    return list.concat([]).reverse();
+  }
   .tap(function(response) {
     lastResponses[tagName].push(response);
   });
