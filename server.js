@@ -141,20 +141,23 @@ app.get("/views", function(req, res){
 // check subscriptions
 // https://api.instagram.com/v1/subscriptions?client_secret=YOUR_CLIENT_ID&client_id=YOUR_CLIENT_SECRET
 
-sendLatestForTags(subscribeTags);
+var initialFetch = sendLatestForTags(subscribeTags);
 
 /**
  * On socket.io connection we get the most recent posts
  * and send to the client side via socket.emit
  */
 io.sockets.on('connection', function (socket) {
-  var data = subscribeTags.map(function(tag){
-    return lastResponses[tag].get(responseThreshold-1).filter(filterDeleted);
+  Promise.map(subscribeTags, function(tag){
+    /* Ensure that we've at least completed the initial image retrieval. */
+    return initialFetch.then(function(){
+      return lastResponses[tag].get(lastResponses[tag].length() - 1).filter(filterDeleted);
+    });
   }).reduce(function(newList, response){
     return newList.concat(response);
-  }, [])
-  
-  socket.emit('firstShow', data);
+  }, []).then(function(data){
+    socket.emit('firstShow', data);
+  });
 });
 
 router = express.Router();
