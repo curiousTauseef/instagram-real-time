@@ -95,11 +95,7 @@ function getLatestForTag(tagName) {
   })
   .filter(filterDeleted)
   .tap(function(response) {
-    if(typeof lastResponses[tagName] != 'undefined') {
-      lastResponses[tagName].push(response);
-    } else {
-      return;
-    }
+    lastResponses[tagName].push(response);
   });
 }
 
@@ -153,11 +149,7 @@ sendLatestForTags(subscribeTags);
  */
 io.sockets.on('connection', function (socket) {
   var data = subscribeTags.map(function(tag){
-    if(typeof lastResponses[tag] != 'undefined') {
-      return lastResponses[tag].get(0).filter(filterDeleted);
-    } else {
-      return;
-    }
+    return lastResponses[tag].get(0).filter(filterDeleted);
   }).reduce(function(newList, response){
     return newList.concat(response);
   }, [])
