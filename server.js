@@ -149,7 +149,7 @@ sendLatestForTags(subscribeTags);
  */
 io.sockets.on('connection', function (socket) {
   var data = subscribeTags.map(function(tag){
-    return lastResponses[tag].get(0).filter(filterDeleted);
+    return lastResponses[tag].get(responseThreshold-1).filter(filterDeleted);
   }).reduce(function(newList, response){
     return newList.concat(response);
   }, [])
