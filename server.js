@@ -89,12 +89,15 @@ function getLatestForTag(tagName) {
   }).then(function(tagUrl){
     return bhttp.get(tagUrl, {decodeJSON: true});
   }).then(function(response){
+    console.log('RESPONSE')
+    console.log(response)
     return response.body.data;
   }).map(function(item){
     return {id: item.id, url: item.images.standard_resolution.url, caption: (item.caption && item.caption.text), tag: tagName};
   })
   .filter(filterDeleted)
   .tap(function(response) {
+    console.log(response)
     lastResponses[tagName].push(response);
   });
 }
