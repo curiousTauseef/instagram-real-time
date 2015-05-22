@@ -112,6 +112,9 @@ function start() {
       })
       .filter(filterVideo)
       .filter(filterDeleted)
+      .then(function(list) {
+        return list.concat([]).reverse();
+      })
       .tap(function(response) {
         lastResponses[tagName].push(response);
       });
