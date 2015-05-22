@@ -60,6 +60,10 @@ Designed with love and for fun by: Daniel Branca (twitter: @designerdanb)
 	<button class="fullscreenButton">
 		full screen
 	</button>
+	
+	<a href="#" class="settingsButton">
+		settings
+	</a>
 
 	<!--********************************
 	IMAGE WRAPPER - content
@@ -72,7 +76,13 @@ Designed with love and for fun by: Daniel Branca (twitter: @designerdanb)
 
 	<script id="mostRecent-tpl" type="text/x-handlebars-template">
 		<div class="image Hvh" data-id="{{id}}">
-			<img src="{{url}}" alt="{{caption}}" />
+			{{#if video}}
+				<video controls poster="{{thumbnail}}">
+					<source src="{{url}}" type="video/mp4">
+				</video>
+			{{else}}
+				<img src="{{url}}" alt="{{caption}}" />
+			{{/if}}
 		</div>
 	</script>
 

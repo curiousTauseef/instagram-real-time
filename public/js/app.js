@@ -49,6 +49,10 @@
 
                 if(isAdmin) {
                     overflowThreshold = 100;
+                    
+                    $(".settingsButton")
+                        .show()
+                        .attr("href", window.location + "/settings");
 
                     $("body").css({
                         overflow: "auto",

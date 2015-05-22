@@ -1,0 +1,19 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Settings</title>
+	</head>
+	<body>
+		<form action="" method="post">
+			<div>
+				<label for="tags">Tags:</label>
+				<input type="text" id="tags" name="tags" value="{{tags}}">
+			</div>
+			<div>
+				<label for="showVideo">Show videos:</label>
+				<input type="checkbox" id="showVideo" name="showVideo" {{#if showVideo}}checked{{/if}}>
+			</div>
+			<button type="submit">Save</button>
+		</form>
+	</body>
+</html>

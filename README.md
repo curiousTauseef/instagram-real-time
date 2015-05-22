@@ -31,9 +31,11 @@ This fork is specifically intended for things like display walls.
 * A full-screen button.
 * Scrollbar-less, images that go off-screen are removed (with a buffer, to account for image removals)
 * An 'admin mode' that lets you remove images from the stream. These removals will be broadcast to viewers and removed from their view also, as well as remembered by the daemon so that they are not broadcast to others again.
+* On-the-fly changing of tags and video display from the 'admin mode' (you __must__ have `forever` installed for this to work, and start the script with `start.sh`!)
 * All API requests are made from the server, rather than the clients. This reduces total API requests, and greatly simplifies image removal.
 * Upgraded from Express 3.x to Express 4.x.
 * Some other internal changes to fix bugs, make code more reliable or readable, etc.
+* Ability to display videos.
 
 ## Technologies
 

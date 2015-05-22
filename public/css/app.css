@@ -73,7 +73,7 @@ a:hover {
    Layout styles: Layout Oriented
    ========================================================================== */
 
-.fullscreenButton {
+.fullscreenButton, .settingsButton {
 	position: fixed;
 	top: 16px;
 	right: 16px;
@@ -83,6 +83,15 @@ a:hover {
 	font-size: 14px;
 	border: 0px;
 	padding: 6px 10px;
+}
+
+.fullscreenButton {
+	top: 16px;
+}
+
+.settingsButton {
+	top: 48px;
+	display: none;
 }
 
 /***********
@@ -231,12 +240,13 @@ a:hover {
 	z-index: 10;
 }
 #imgContent .image, 
-#imgContent img { display: block; }
+#imgContent img,
+#imgContent video { display: block; }
 #imgContent .image {
 	float: left;
 	width: 16.640625%;
 }
-#imgContent img {
+#imgContent img, #imgContent video {
 	width: 100%;
 }
 
