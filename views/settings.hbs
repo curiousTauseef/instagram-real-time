@@ -4,7 +4,7 @@
 		<title>Settings</title>
 	</head>
 	<body>
-		<form action="" method="post">
+		<form id="settingsForm" action="" method="post">
 			<div>
 				<label for="tags">Tags:</label>
 				<input type="text" id="tags" name="tags" value="{{tags}}">
@@ -17,3 +17,11 @@
 		</form>
 	</body>
 </html>
+<script src="/js/jquery.1.9.min.js"></script>
+<script src="//malsup.github.io/min/jquery.form.min.js"></script>
+<script>
+	$('#settingsForm').ajaxForm(function() { 
+		console.log('test')
+		setTimeout(function(){ window.location = window.location.href.replace('/settings','') }, 3000);
+	});
+</script>

@@ -223,13 +223,10 @@ function start() {
   });
 
   router.post("/admin/:authKey/settings", function(req, res){
-    /* Redirect before a potential process restart might happen... */
-    res.redirect("/admin/" + req.params.authKey);
-    
     var envFile = __dirname + "/.env";
     var requireRestart = false;
     var newShowVideo = (req.body.showVideo != null);
-      
+    
     if (newShowVideo !== showVideo) {
       var changeShowVideo = true;
       requireRestart = true;
@@ -263,6 +260,7 @@ function start() {
       
       return fs.writeFileAsync(envFile, newEnv);
     }).delay(2000).then(function(){
+      res.sendStatus(200);
       if (requireRestart) {
         childProcess.spawn("forever", ["restart", "server.js"]);
       }

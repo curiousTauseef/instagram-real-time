@@ -17,10 +17,14 @@
   -ms-box-sizing: border-box;
 }
 
-video::-webkit-media-controls-fullscreen-button { display: none; }
+/*video::-webkit-media-controls-fullscreen-button { display: none; }*/
 
 html {
   -webkit-font-smoothing: antialiased;
+}
+
+.fancybox-lock .fancybox-overlay {
+  overflow: hidden !important;
 }
 
 /* font-family: 'Open Sans', sans-serif; */
