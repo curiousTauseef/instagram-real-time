@@ -232,6 +232,7 @@ function start() {
       
     if (newShowVideo !== showVideo) {
       var changeShowVideo = true;
+      requireRestart = true;
       showVideo = newShowVideo;
     } else {
       var changeShowVideo = false;
