@@ -17,6 +17,8 @@
   -ms-box-sizing: border-box;
 }
 
+video::-webkit-media-controls-fullscreen-button { display: none; }
+
 html {
   -webkit-font-smoothing: antialiased;
 }
