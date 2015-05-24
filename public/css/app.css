@@ -31,11 +31,6 @@ body {
   overflow: hidden;
 }
 
-img {
-  max-width: 100%;
-  border: 1px solid #ffffff;
-}
-
 ul, 
 ol, 
 li {
@@ -46,15 +41,6 @@ li {
 
 h1 {
 	margin: 0;
-}
-
-a {
-	text-decoration: none;
-	color: #000;
-}
-a:hover {
-	color: #fcbc34;
-	text-decoration: none;
 }
 
 /* ==========================================================================
@@ -83,6 +69,7 @@ a:hover {
 	font-size: 14px;
 	border: 0px;
 	padding: 6px 10px;
+  text-decoration: none;
 }
 
 .fullscreenButton {
@@ -146,6 +133,7 @@ a:hover {
 	padding: 2% 0 2% 12%;
 	font-size: 18px;
 	font-size: 1.1rem;
+  text-decoration: none;
 }
 .nav .latest { 
 	font-weight: bold;
@@ -243,6 +231,7 @@ a:hover {
 #imgContent img,
 #imgContent video { display: block; }
 #imgContent .image {
+  border: 1px solid #ffffff;
 	float: left;
 	width: 16.640625%;
 }
@@ -354,10 +343,6 @@ a:hover {
     width: 100%;
     max-width: 100%;
     padding: 2% 2% 2% 4%;
-  }
-  /* content */
-  #imgContent a {
-    width: 50%;
   }
 }
 
