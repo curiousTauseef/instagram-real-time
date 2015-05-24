@@ -21,6 +21,7 @@ Designed with love and for fun by: Daniel Branca (twitter: @designerdanb)
 	<!-- css -->
 	<link href='//fonts.googleapis.com/css?family=Open+Sans:400,700,600,800' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="/css/app.css">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/css/lightbox.css">
 
 	<!-- configuration -->
 	<script>
@@ -38,8 +39,9 @@ Designed with love and for fun by: Daniel Branca (twitter: @designerdanb)
 	</script>
 
 	<!-- script -->
-	<script src="/js/socket.io.min.js"></script>
 	<script src="/js/jquery.1.9.min.js"></script>
+	<script src="//cdnjs.cloudflare.com/ajax/libs/lightbox2/2.7.1/js/lightbox.min.js"></script>
+	<script src="/js/socket.io.min.js"></script>
 	<script src="/js/handlebarsjs.1.0.min.js"></script>
 
 	<!--[if lt IE 9]>
@@ -77,11 +79,11 @@ Designed with love and for fun by: Daniel Branca (twitter: @designerdanb)
 	<script id="mostRecent-tpl" type="text/x-handlebars-template">
 		<div class="image Hvh" data-id="{{id}}">
 			{{#if video}}
-				<video controls poster="{{thumbnail}}">
+				<video controls poster="{{thumbnail}}" onclick="this.paused?this.play():this.pause();">
 					<source src="{{url}}" type="video/mp4">
 				</video>
 			{{else}}
-				<img src="{{url}}" alt="{{caption}}" />
+				<img src="{{url}}" />
 			{{/if}}
 		</div>
 	</script>
